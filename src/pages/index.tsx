@@ -29,7 +29,7 @@ export default function Home({ products }: HomeProps) {
           <Image src={product.imageUrl} width={520} height={480} alt="" />
           <footer>
             <strong>{product.name}</strong>
-            <span>{product.price / 100}</span>
+            <span>{product.price}</span>
           </footer>
         </Product>
       ))}
@@ -44,12 +44,15 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const products = response.data.map((product) => {
     const price = product.default_price as Stripe.Price
-
+    const priceInCents = price.unit_amount != null ? price.unit_amount / 100 : 0
     return {
       id: product.id,
       name: product.name,
       imageUrl: product.images[0],
-      price: price.unit_amount,
+      price: new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(priceInCents),
     }
   })
   return {
